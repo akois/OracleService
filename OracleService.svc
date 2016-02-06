@@ -1,0 +1,1 @@
+﻿<%@ ServiceHost Language="C#" Debug="true" Service="OracleService.OracleService" CodeBehind="OracleService.svc.cs" %>
