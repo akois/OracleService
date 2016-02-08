@@ -36,8 +36,13 @@ namespace OracleService
         [OperationContract]
         public string Decrypt(string strCipher)
         {
+            //
+
+//5665727952616e646f6d495631323334ab30cdf1e3fbc97c41c1e44cb22e33ed
+//ab30cdf1e3fbc97c41c1e44cb22e33ed40bff4855d03ea9bd4ad8624720be657
+
             /*
-            cipher "ab30cdf1e3fbc97c41c1e44cb22e33ed40bff4855d03ea9bd4ad8624720be657"
+            cipher "5665727952616e646f6d495631323334ab30cdf1e3fbc97c41c1e44cb22e33ed40bff4855d03ea9bd4ad8624720be657"
             obtain with
             var key = System.Text.Encoding.ASCII.GetBytes("VerySecretPasswd");
             var IV = System.Text.Encoding.ASCII.GetBytes("VeryRandomIV1234");
@@ -48,6 +53,7 @@ namespace OracleService
             */
 
 
+            const string strSecretMessage = "My very very secret message";
             try
             {
                 var cipher = StringToByteArray(strCipher);
@@ -59,17 +65,21 @@ namespace OracleService
 
                 var decryptedMessage=CryptoHelper.DecryptAES(cipherData, key, IV);
 
-                if (decryptedMessage != "My very very secret message")
-                    throw new WebFaultException(HttpStatusCode.Forbidden);
+                var nPos=strSecretMessage.IndexOf(decryptedMessage);
 
+                if (nPos % 16 == 0 && (nPos + decryptedMessage.Length == strSecretMessage.Length || (decryptedMessage.Length)%16==0))
+                {
+                    return "OK " + decryptedMessage;
+                }
+               
+                //return "OK1 " + decryptedMessage;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                throw new WebFaultException(HttpStatusCode.NotFound);
+                throw new WebFaultException(HttpStatusCode.Forbidden);
             }
-
-            return "OK";
-           
+            throw new WebFaultException(HttpStatusCode.NotFound);
+        
         }
     }
 }

@@ -76,7 +76,7 @@ namespace Encrypt
                 // convert the data in the memory stream to base64 text
                 ms.Seek(0, SeekOrigin.Begin);
 
-                var enc = ms.ToArray();
+                var enc = ms.ToArray();//.TakeWhile(c => c > 16).ToArray();
                 retVal = System.Text.Encoding.ASCII.GetString(enc, 0, enc.Length);
             }
 
