@@ -7,6 +7,8 @@ using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
 
+using Encrypt;
+
 namespace OracleService
 {
     [ServiceContract]
@@ -16,9 +18,27 @@ namespace OracleService
         [OperationContract]
         public string Decrypt(string cipher)
         {
-            //throw new WebFaultException(HttpStatusCode.BadRequest);
+            try
+            {
+                var key = System.Text.Encoding.ASCII.GetBytes("VerySecretPasswd");
 
-            return "cipher";
+                var cipherData = System.Text.Encoding.ASCII.GetBytes(cipher).Skip(16).ToArray();
+                var IV = System.Text.Encoding.ASCII.GetBytes(cipher).Take(16).ToArray();
+
+                //throw new WebFaultException(HttpStatusCode.BadRequest);
+
+                var decryptedMessage=CryptoHelper.DecryptAES(cipherData, key, IV);
+
+                if (decryptedMessage != "My very very secret message")
+                    throw new WebFaultException(HttpStatusCode.Forbidden);
+
+            }
+            catch (Exception)
+            {
+                throw new WebFaultException(HttpStatusCode.NotFound);
+            }
+
+            return "OK";
            
         }
     }
