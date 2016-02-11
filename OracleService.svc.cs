@@ -32,9 +32,9 @@ namespace OracleService
         }
 
 
-        [WebGet(UriTemplate = "Decrypt?cipher={strCipher}")]
+        [WebGet(UriTemplate = "Decrypt?mode={mode}&cipher={strCipher}")]
         [OperationContract]
-        public string Decrypt(string strCipher)
+        public string Decrypt(string mode, string strCipher)
         {
             //
 
@@ -67,18 +67,24 @@ namespace OracleService
 
                 var nPos=strSecretMessage.IndexOf(decryptedMessage);
 
-                if (nPos % 16 == 0 && (nPos + decryptedMessage.Length == strSecretMessage.Length || (decryptedMessage.Length)%16==0))
+                if (nPos >=0 && nPos % 16 == 0 && (nPos + decryptedMessage.Length == strSecretMessage.Length))
                 {
-                    return "OK " + decryptedMessage;
+                    return "OK " + decryptedMessage + " " + strCipher;
                 }
                
                 //return "OK1 " + decryptedMessage;
             }
             catch (Exception e)
             {
-                throw new WebFaultException(HttpStatusCode.Forbidden);
+                if (mode == "ErrorsInBody")
+                    return "Forbidden";
+                else
+                    throw new WebFaultException(HttpStatusCode.Forbidden);
             }
-            throw new WebFaultException(HttpStatusCode.NotFound);
+            if (mode == "ErrorsInBody")
+                return "Invalid Padding";
+            else 
+                throw new WebFaultException(HttpStatusCode.NotFound);
         
         }
     }
